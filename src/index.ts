@@ -7,7 +7,7 @@ import {
 import { provideCmdline } from '@deepseek-ai/dsh-cmdline'
 import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
 import { INSTALL_ANCHOR } from '@deepseek-ai/dsh/profile-boot'
-import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -16,8 +16,7 @@ const bundles = ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app']
 const dir = mkdtempSync(join(process.env.XDG_RUNTIME_DIR ?? tmpdir(), 'dsh-profile-'))
 process.on('exit', () => rmSync(dir, { recursive: true, force: true }))
 initProfile(dir, bundles)
-symlinkSync(join(process.cwd(), 'node_modules'), join(dir, 'node_modules'))
-const root = join(dir, 'root.yml')
+const root = join(process.cwd(), '.root.yml')
 writeFileSync(root, '[]\n')
 writeFileSync(
   join(dir, 'DO-NOT-EDIT.md'),

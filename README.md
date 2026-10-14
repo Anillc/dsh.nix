@@ -65,14 +65,8 @@ and serializes writers with a lock inside the profile directory, so a
 store-backed profile cannot save. [src/index.ts](./src/index.ts) instead creates
 a fresh profile in `$XDG_RUNTIME_DIR` on every start — `initProfile(dir,
 bundles)`, plus a `DO-NOT-EDIT.md` aimed at agents — and points `patchPath` at
-the repo's `cordis.patch.yml`. So the only file dsh writes in the repo is that
-patch file — which is what you commit — and every start begins from it.
-
-**Everything is a patch layer.** The root entry list the Loader starts from is
-empty and written into the throwaway profile, so the composition is the
-`bundles` list in `src/index.ts` plus these layers in order: bundle patches →
-`cordis.patch.yml` → `$DSH_HOME/cordis.patch.yml` → CLI overlays. A fork only
-needs to change `bundles` and the patch file.
+the repo's `cordis.patch.yml`. So the only file dsh writes in the repo that you
+commit is that patch file, and every start begins from it.
 
 `src/index.ts` is the whole launcher: `boot()` + `profileContext` +
 `provideCmdline()`, plus the readiness handshake the HMR plugin needs.
