@@ -1,3 +1,6 @@
 - id: hmr
   config:
-    root: ['.']
+    root: [ '.' ]
+- insert:
+    - id: creator-playbook
+      name: ./src/creator-playbook.ts

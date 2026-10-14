@@ -33,7 +33,6 @@
         '';
       };
     in {
-      packages = { inherit lock nm; };
       devShells.default = pkgs.mkShell {
         NODE_OPTIONS = "--preserve-symlinks --preserve-symlinks-main";
         nativeBuildInputs = with pkgs; [ nodejs ];
