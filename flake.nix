@@ -33,13 +33,23 @@
         '';
       };
     in {
-      devShells.default = pkgs.mkShell {
+      devShells.default = let
+        dsh = pkgs.writeShellApplication {
+          name = "dsh";
+          runtimeInputs = with pkgs; [ nodejs ];
+          text = ''
+            cd "$DSH_NIX"
+            exec node --expose-internals --import tsx src/index.ts "$@"
+          '';
+        };
+      in pkgs.mkShell {
         NODE_OPTIONS = "--preserve-symlinks --preserve-symlinks-main";
-        nativeBuildInputs = with pkgs; [ nodejs ];
+        nativeBuildInputs = with pkgs; [ nodejs dsh ];
         shellHook = ''
           ln -sfn ${nm}/node_modules      node_modules
           ln -sfn ${nm}/package.json      package.json
           ln -sfn ${nm}/package-lock.json package-lock.json
+          export DSH_NIX="$PWD"
         '';
       };
     };
