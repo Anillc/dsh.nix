@@ -35,15 +35,8 @@
     in {
       packages = { inherit lock nm; };
       devShells.default = pkgs.mkShell {
+        NODE_OPTIONS = "--preserve-symlinks --preserve-symlinks-main";
         nativeBuildInputs = with pkgs; [ nodejs ];
-        RO_PROFILE = pkgs.writeTextDir "package.json" (builtins.toJSON {
-          name = "ro-profile";
-          version = "0.0.0";
-          dsh.profile.bundles = [
-            "@deepseek-ai/dsh-base"
-            "@deepseek-ai/dsh-web-app"
-          ];
-        });
         shellHook = ''
           ln -sfn ${nm}/node_modules      node_modules
           ln -sfn ${nm}/package.json      package.json

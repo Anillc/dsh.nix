@@ -1,20 +1,40 @@
 import {
   boot,
+  initProfile,
   readProfilePatches,
-  readProfileManifest,
 } from '@deepseek-ai/dsh-app-boot'
 import { provideCmdline } from '@deepseek-ai/dsh-cmdline'
 import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
 import { INSTALL_ANCHOR } from '@deepseek-ai/dsh/profile-boot'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+const bundles = ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app']
+
+const dir = mkdtempSync(join(process.env.XDG_RUNTIME_DIR ?? tmpdir(), 'dsh-profile-'))
+process.on('exit', () => rmSync(dir, { recursive: true, force: true }))
+initProfile(dir, bundles)
+writeFileSync(
+  join(dir, 'DO-NOT-EDIT.md'),
+  [
+    '# Throwaway dsh profile — do not edit',
+    '',
+    'This directory is recreated on every start, so anything written here is lost.',
+    'To change configuration, edit `cordis.patch.yml` in the workspace (or ask the',
+    'user to) — never edit this directory.',
+    '',
+  ].join('\n'),
+)
 
 const context = {
-  name: 'ro',
-  dir: process.env.RO_PROFILE!,
+  name: 'profile',
+  dir,
   patchPath: 'cordis.patch.yml',
   installAnchor: INSTALL_ANCHOR,
   cwd: process.cwd(),
   home: resolveDshHome(),
-  startedBundles: readProfileManifest('dsh', process.env.RO_PROFILE!).dsh?.profile?.bundles ?? [],
+  startedBundles: bundles,
   overlays: [],
   telemetryDisabledEnv: process.env.DSH_TELEMETRY_DISABLED,
 }
