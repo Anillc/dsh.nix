@@ -6,6 +6,8 @@
       name: ./src/creator-playbook.ts
     - id: approve-for-me
       name: ./src/approve-for-me/index.ts
+    - id: api
+      name: ./src/api.ts
 - id: ui-settings-general
   name: "@deepseek-ai/dsh-client-ui-settings-general"
   config:
