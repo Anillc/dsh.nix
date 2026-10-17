@@ -4,6 +4,8 @@
 - insert:
     - id: creator-playbook
       name: ./src/creator-playbook.ts
+    - id: approve-for-me
+      name: ./src/approve-for-me/index.ts
 - id: ui-settings-general
   name: "@deepseek-ai/dsh-client-ui-settings-general"
   config:
@@ -35,8 +37,3 @@
           - id: gpt-5.6-sol
           - id: grok-4.7
           - id: kimi-k2.6
-- id: agent-default-model
-  name: "@deepseek-ai/dsh-agent-default-model"
-  config:
-    provider: newapi
-    model: gpt-6-sol
