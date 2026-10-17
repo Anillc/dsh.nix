@@ -8,3 +8,35 @@
   name: "@deepseek-ai/dsh-client-ui-settings-general"
   config:
     welcomeNoticeVersion: 2026-09-28.1
+- id: llm-pi-ai
+  config:
+    providers:
+      newapi:
+        displayName: NewAPI
+        api: openai-completions
+        baseURL: https://llm.ani.llc/v1
+        apiKeyEnv: NEWAPI_API_KEY
+        models:
+          - id: deepseek-v4-pro
+            contextWindow: 1048576
+            maxTokens: 393216
+            reasoningEfforts: { low: low, high: high, max: max }
+          - id: deepseek-flash
+            contextWindow: 1048576
+            maxTokens: 393216
+            reasoningEfforts: { low: low, high: high, max: max }
+          - id: deepseek-chat
+            contextWindow: 131072
+            maxTokens: 8192
+          - id: deepseek-reasoner
+            contextWindow: 131072
+            maxTokens: 65536
+          - id: gpt-6-sol
+          - id: gpt-5.6-sol
+          - id: grok-4.7
+          - id: kimi-k2.6
+- id: agent-default-model
+  name: "@deepseek-ai/dsh-agent-default-model"
+  config:
+    provider: newapi
+    model: gpt-6-sol

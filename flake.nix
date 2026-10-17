@@ -39,6 +39,7 @@
           runtimeInputs = with pkgs; [ nodejs ];
           text = ''
             cd "$DSH_NIX"
+            export DSH_HOME="$DSH_NIX/.dsh"
             exec node --expose-internals --import tsx src/index.ts "$@"
           '';
         };
