@@ -8,6 +8,8 @@
       name: ./src/approve-for-me/index.ts
     - id: api
       name: ./src/api.ts
+    - id: think-expand
+      name: "@mzzsfy/dsh-think-expand"
 - id: ui-settings-general
   name: "@deepseek-ai/dsh-client-ui-settings-general"
   config:
