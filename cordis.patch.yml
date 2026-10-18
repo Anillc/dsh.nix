@@ -1,3 +1,7 @@
+- id: sandbox
+  config:
+    runnerCommand: ["bwrap", "--unshare-net"]
+    runnerFailureSignatures: ["bwrap: "]
 - id: hmr
   config:
     root: [ '.' ]

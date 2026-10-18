@@ -37,7 +37,7 @@
       devShells.default = let
         dsh = pkgs.writeShellApplication {
           name = "dsh";
-          runtimeInputs = with pkgs; [ nodejs ];
+          runtimeInputs = with pkgs; [ nodejs bubblewrap ];
           text = ''
             cd "$DSH_NIX"
             export DSH_HOME="$DSH_NIX/.dsh"
