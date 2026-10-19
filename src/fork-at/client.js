@@ -103,11 +103,17 @@ window.__ModuleLoader__.load({
         const settled = node.kind === 'assistant-step' ? node.data?.status !== 'running'
           : node.kind === 'tool-call' ? node.data?.root?.phase !== 'preparing'
             : true
+        const location = node.location
+        const turnStart = location !== undefined && location !== null
+          && (location.kind === 'step' || location.kind === 'turn')
+          ? location.turn.start?.seq
+          : undefined
         rows.set(node.key, {
           kind: node.kind,
           seq,
           durable: typeof seq === 'number' && seq >= 0 && settled,
           text: node.kind === 'user' || node.kind === 'steering' ? userText(node.data?.content) : '',
+          turnStart,
         })
         if (node.kind === 'tool-call') collectCalls(node, calls)
         const closingNode = node.data?.closing?.finalNode
@@ -155,7 +161,24 @@ window.__ModuleLoader__.load({
       }
     }
 
-    async function branch(seq, prefill) {
+    async function clearInheritedQueue(sessions, sessionId) {
+      if (typeof sessions.using !== 'function') return
+      try {
+        await sessions.using(sessionId, { source: 'controllerOperation' }, async (reference) => {
+          const session = reference.binding.session
+          const inbox = session.projections.faceOf('inbox').getSnapshot()
+          const pending = [
+            ...(Array.isArray(inbox?.['next-turn']) ? inbox['next-turn'] : []),
+            ...(Array.isArray(inbox?.['next-step']) ? inbox['next-step'] : []),
+          ]
+          for (const message of pending) {
+            if (typeof message?.id === 'string') await session.updateQueue(message.id, { kind: 'remove' })
+          }
+        })
+      } catch { /* inherited queue cleanup is best effort */ }
+    }
+
+    async function branch(seq, prefill, increaseTitle) {
       const sessions = ctxRef?.get('sessions')
       if (sessions === undefined || sessions === null || typeof store.sessionId !== 'string') {
         notify(TEXT.noSession)
@@ -165,11 +188,12 @@ window.__ModuleLoader__.load({
       const workspaces = ctxRef?.get('workspaces')
       let childId
       try {
-        childId = await sessions.fork({ sessionId: parentId, atSeq: seq, increaseTitle: true })
+        childId = await sessions.fork({ sessionId: parentId, atSeq: seq, ...(increaseTitle ? { increaseTitle: true } : {}) })
       } catch (error) {
         notify(TEXT.insertFailed + messageOf(error))
         return
       }
+      await clearInheritedQueue(sessions, childId)
       if (typeof prefill === 'string' && prefill !== '') pendingDraft = { sessionId: childId, text: prefill }
       ctxRef?.get('uiWorkspace')?.openSession(childId)
       if (workspaces === undefined || workspaces === null) {
@@ -184,11 +208,14 @@ window.__ModuleLoader__.load({
     }
 
     function insertAt(seq) {
-      void branch(seq)
+      void branch(seq, '', true)
     }
 
-    function editMessage(seq, text) {
-      void branch(seq - 1, text)
+    function editMessage(info, seq) {
+      const boundary = info.kind === 'user' && typeof info.turnStart === 'number' && info.turnStart > 0
+        ? info.turnStart - 1
+        : seq - 1
+      void branch(boundary, info.text, false)
     }
 
     function resolveTarget(target) {
@@ -230,7 +257,7 @@ window.__ModuleLoader__.load({
           event.stopPropagation()
           const current = store.rows.get(key)
           const seq = requireSeq(current)
-          if (seq !== undefined) editMessage(seq, current.text)
+          if (seq !== undefined) editMessage(current, seq)
         })
         actions.appendChild(button)
       }
