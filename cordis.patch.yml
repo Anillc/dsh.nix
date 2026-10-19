@@ -14,6 +14,8 @@
       name: ./src/fork-at/index.ts
     - id: approve-for-me
       name: ./src/approve-for-me/index.ts
+    - id: stop-after-reject
+      name: ./src/stop-after-reject.ts
     - id: api
       name: ./src/api.ts
     - id: think-expand
