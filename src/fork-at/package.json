@@ -1,0 +1,18 @@
+{
+  "name": "dsh-fork-at",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Fork or edit from any conversation row, archiving the source session.",
+  "exports": {
+    ".": "./index.ts",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  }
+}

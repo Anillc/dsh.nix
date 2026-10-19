@@ -10,6 +10,8 @@
       name: ./src/creator-playbook.ts
     - id: prompt
       name: ./src/prompt.ts
+    - id: fork-at
+      name: ./src/fork-at/index.ts
     - id: approve-for-me
       name: ./src/approve-for-me/index.ts
     - id: api
