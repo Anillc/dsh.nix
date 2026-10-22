@@ -452,18 +452,6 @@ window.__ModuleLoader__.load({
         if (nodesStore !== undefined && nodesStore !== null && typeof nodesStore.values === 'function') {
           rebuild(nodesStore.values())
         }
-        if (pendingDraft !== null && pendingDraft.sessionId === sessionId) {
-          const draft = pendingDraft
-          pendingDraft = null
-          const inputActions = props.inputActions
-          requestAnimationFrame(() => {
-            try {
-              inputActions?.setDraft(draft.text)
-            } catch {
-              notify(TEXT.prefillFailed)
-            }
-          })
-        }
         return () => {
           if (store.sessionId === sessionId) store.sessionId = null
         }
@@ -475,6 +463,24 @@ window.__ModuleLoader__.load({
         decorate()
       }, [order, nodesStore])
 
+      return null
+    }
+
+    function Prefill(props) {
+      React.useEffect(() => {
+        if (pendingDraft === null || pendingDraft.sessionId !== props.sessionId) return
+        const inputActions = props.inputActions
+        if (inputActions === undefined || inputActions === null) return
+        const draft = pendingDraft
+        pendingDraft = null
+        requestAnimationFrame(() => {
+          try {
+            inputActions.setDraft(draft.text)
+          } catch {
+            notify(TEXT.prefillFailed)
+          }
+        })
+      }, [props.sessionId, props.inputActions])
       return null
     }
 
@@ -524,6 +530,11 @@ window.__ModuleLoader__.load({
           id: 'fork-at',
           order: 900,
         }, Dock))
+        ctx.slots.inject('conversation.input.overlay', () => ctx.slots.register({
+          name: 'conversation.input.overlay',
+          id: 'fork-at-prefill',
+          order: 900,
+        }, Prefill))
         ctx.slots.inject('conversation.chat.assistant-actions', () => ctx.slots.register({
           name: 'conversation.chat.assistant-actions',
           id: 'fork-at-insert',
