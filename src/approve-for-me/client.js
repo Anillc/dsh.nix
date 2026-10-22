@@ -6,8 +6,15 @@ window.__ModuleLoader__.load({
     const NS = "approve-for-me";
     const zh = {
       "badge": "AI 已放行",
+      "badge.deny": "AI 已拒绝",
       "aria": "自动审核的提权操作",
       "title": "提权操作经 AI 审核后自动放行",
+      "title.deny": "提权操作被 AI 审核拒绝，已转交你决定",
+      "noRationale": "未给出原因",
+      "outcome.allowed-once": "你已放行",
+      "outcome.rejected": "你已拒绝",
+      "outcome.cancelled": "已取消",
+      "outcome.unavailable": "无可用审批通道",
       "toggle.label": "Approve for me",
       "toggle.aria": "Approve for me：提权请求先由 AI 审核（仅当前会话）",
       "toggle.on": "Approve for me 已开启：提权请求先交给 AI 审核，不通过时再询问你",
@@ -15,8 +22,15 @@ window.__ModuleLoader__.load({
     };
     const en = {
       "badge": "AI approved",
+      "badge.deny": "AI declined",
       "aria": "Auto-approved escalation",
       "title": "Escalation approved by AI review without asking the user",
+      "title.deny": "Escalation rejected by AI review, then handed to you",
+      "noRationale": "no reason given",
+      "outcome.allowed-once": "you allowed it",
+      "outcome.rejected": "you rejected it",
+      "outcome.cancelled": "cancelled",
+      "outcome.unavailable": "no approver available",
       "toggle.label": "Approve for me",
       "toggle.aria": "Approve for me: review escalation requests with AI first (this session only)",
       "toggle.on": "Approve for me is on: escalations go to AI review first, then to you if denied",
@@ -41,6 +55,10 @@ window.__ModuleLoader__.load({
       color: "var(--dsw-alias-state-success-primary)",
       fontSize: "11px",
       lineHeight: "16px"
+    };
+    const badgeDeny = {
+      ...badge,
+      color: "var(--dsw-alias-state-error-primary)"
     };
     const text = {
       minWidth: 0,
@@ -114,7 +132,7 @@ window.__ModuleLoader__.load({
       buildViewNode(context) {
         const state = context.state;
         const start = context.start ?? context.matches[0];
-        if (state === void 0 || start === void 0 || state.outcome !== "allowed-once") return null;
+        if (state === void 0 || start === void 0 || state.outcome === void 0) return null;
         if (state.callId === void 0) return null;
         return {
           key: context.key,
@@ -133,13 +151,32 @@ window.__ModuleLoader__.load({
         };
       }
     };
+    const OUTCOMES = new Set(["allowed-once", "rejected", "cancelled", "unavailable"]);
     function ApprovalAutoRow({ node, t, useProjection }) {
       const projection = useProjection("approveForMe");
       const entry = projection === void 0 || projection === null ? void 0 : projection.calls[node.data.callId];
       if (entry === void 0) return null;
+      const denied = entry.decision === "deny";
+      const rationale = typeof entry.rationale === "string" && entry.rationale !== "" ? entry.rationale : void 0;
+      const toolName = node.data.toolName;
       const reason = node.data.reason;
-      const detail = reason === void 0 || reason === "" ? node.data.toolName : `${node.data.toolName} · ${reason}`;
-      const title = entry.rationale === void 0 ? `${t("title")} (${entry.risk})` : `${t("title")} (${entry.risk}) — ${entry.rationale}`;
+      let detail;
+      if (denied) {
+        detail = `${toolName} · ${rationale === void 0 ? t("noRationale") : rationale}`;
+        if (entry.outcome === "allowed-once") {
+          detail = `${toolName} · ${t("outcome.allowed-once")} · ${rationale === void 0 ? t("noRationale") : rationale}`;
+        }
+      } else {
+        detail = reason === void 0 || reason === "" ? toolName : `${toolName} · ${reason}`;
+      }
+      const outcome = OUTCOMES.has(entry.outcome) ? t(`outcome.${entry.outcome}`) : void 0;
+      const risk = `${entry.risk}${denied ? ` / ${entry.authorization}` : ""}`;
+      const title = [
+        t(denied ? "title.deny" : "title"),
+        `(${risk})`,
+        rationale === void 0 ? "" : `— ${rationale}`,
+        denied && outcome !== void 0 ? `· ${outcome}` : ""
+      ].filter((part) => part !== "").join(" ");
       return h(
         "div",
         {
@@ -148,7 +185,7 @@ window.__ModuleLoader__.load({
           "data-approval-auto": node.data.callId ?? node.id,
           style: row
         },
-        h("span", { style: badge }, t("badge")),
+        h("span", { style: denied ? badgeDeny : badge }, t(denied ? "badge.deny" : "badge")),
         h("span", { style: text, title }, detail)
       );
     }

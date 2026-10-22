@@ -32,31 +32,39 @@ type Config = {
   readonly ledger?: string
 }
 
+type Decision = 'allow' | 'deny'
+
 type Verdict = {
   readonly tool: string
   readonly risk: string
   readonly authorization: string
+  readonly decision: Decision
   readonly rationale?: string
   readonly time: number
 }
+
+type CallVerdict = Verdict & { readonly outcome: string }
 
 const verdictSchema = zod.object({
   tool: zod.string(),
   risk: zod.string(),
   authorization: zod.string(),
+  decision: zod.union([zod.literal('allow'), zod.literal('deny')]),
   rationale: zod.string().optional(),
   time: zod.number(),
 })
 
+const callVerdictSchema = verdictSchema.extend({ outcome: zod.string() })
+
 const projectionStateSchema = zod.object({
   sessionId: zod.string(),
   pending: zod.record(zod.string(), zod.string()),
-  calls: zod.record(zod.string(), verdictSchema),
+  calls: zod.record(zod.string(), callVerdictSchema),
   enabled: zod.boolean(),
 })
 
 const projectionViewSchema = zod.object({
-  calls: zod.record(zod.string(), verdictSchema),
+  calls: zod.record(zod.string(), callVerdictSchema),
   enabled: zod.boolean(),
 })
 
@@ -175,28 +183,61 @@ function reviewText(request: {
 }
 
 const AUTHORIZED_FOR_HIGH = new Set(['medium', 'high'])
+const RISK_LEVELS = new Set(['low', 'medium', 'high', 'critical'])
 
-function parseVerdict(text: string): { allow: boolean; risk?: string; authorization?: string; rationale?: string } {
+type ParsedVerdict = {
+  readonly allow: boolean
+  /** Whether the reviewer produced a coherent decision worth recording and showing. */
+  readonly valid: boolean
+  readonly risk?: string
+  readonly authorization?: string
+  readonly rationale?: string
+}
+
+function parseVerdict(text: string): ParsedVerdict {
   const start = text.indexOf('{')
   const end = text.lastIndexOf('}')
-  if (start < 0 || end <= start) return { allow: false }
+  if (start < 0 || end <= start) return { allow: false, valid: false }
   let value: unknown
   try {
     value = JSON.parse(text.slice(start, end + 1))
   } catch {
-    return { allow: false }
+    return { allow: false, valid: false }
   }
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) return { allow: false }
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return { allow: false, valid: false }
   const record = value as Record<string, unknown>
   const rationale = typeof record.rationale === 'string' ? record.rationale : undefined
   const risk = typeof record.risk_level === 'string' ? record.risk_level : undefined
   const authorization = typeof record.user_authorization === 'string' ? record.user_authorization : undefined
-  if (record.outcome !== 'allow') return { allow: false, risk, authorization, rationale }
-  if (risk === 'low' || risk === 'medium') return { allow: true, risk, authorization, rationale }
-  if (risk === 'high' && authorization !== undefined && AUTHORIZED_FOR_HIGH.has(authorization)) {
-    return { allow: true, risk, authorization, rationale }
+  if (record.outcome === 'deny') return { allow: false, valid: true, risk, authorization, rationale }
+  if (record.outcome !== 'allow') return { allow: false, valid: false, risk, authorization, rationale }
+  const allowed = risk === 'low' || risk === 'medium'
+    || (risk === 'high' && authorization !== undefined && AUTHORIZED_FOR_HIGH.has(authorization))
+  return { allow: allowed, valid: risk !== undefined && RISK_LEVELS.has(risk), risk, authorization, rationale }
+}
+
+/**
+ * Put the reviewer's refusal in front of the user when the request is handed
+ * to them. The approval prompt reads its presentation copy from the live
+ * request, and `displayReason` is documented as presentation-only, so
+ * enriching it here does not change the audit event already appended.
+ */
+function annotateDenial(request: {
+  readonly reason?: string
+  displayReason?: { en: string; [locale: string]: string }
+}, rationale: string | undefined) {
+  const original = request.displayReason
+  const pick = (...values: (string | undefined)[]) => values.find((value) => value !== undefined && value !== '')
+  const originalEn = pick(original?.en, request.reason)
+  const originalZh = pick(original?.['zh'], original?.en, request.reason)
+  const reason = rationale === undefined || rationale.length === 0 ? undefined : rationale
+  const en = reason === undefined ? 'AI review denied this call' : `AI review denied this call: ${reason}`
+  const zh = reason === undefined ? 'AI 审核拒绝了此调用' : `AI 审核拒绝了此调用：${reason}`
+  request.displayReason = {
+    ...(original ?? {}),
+    en: originalEn === undefined ? en : `${en}；original request: ${originalEn}`,
+    zh: originalZh === undefined ? zh : `${zh}；原请求：${originalZh}`,
   }
-  return { allow: false, risk, authorization, rationale }
 }
 
 export function apply(ctx: Context, config: Config) {
@@ -220,12 +261,14 @@ export function apply(ctx: Context, config: Config) {
       for (const line of readFileSync(ledgerPath, 'utf8').split('\n').slice(-5000)) {
         if (line.length === 0) continue
         try {
-          const row = JSON.parse(line) as { sessionId?: unknown; callId?: unknown; tool?: unknown; risk?: unknown; authorization?: unknown; rationale?: unknown; time?: unknown }
+          const row = JSON.parse(line) as { sessionId?: unknown; callId?: unknown; tool?: unknown; risk?: unknown; authorization?: unknown; decision?: unknown; rationale?: unknown; time?: unknown }
           if (typeof row.sessionId !== 'string' || typeof row.callId !== 'string' || typeof row.tool !== 'string' || typeof row.risk !== 'string' || typeof row.time !== 'number') continue
           verdicts.set(verdictKey(row.sessionId, row.callId), {
             tool: row.tool,
             risk: row.risk,
             authorization: typeof row.authorization === 'string' ? row.authorization : 'unknown',
+            // Rows written before denial tracking only ever recorded AI approvals.
+            decision: row.decision === 'deny' ? 'deny' : 'allow',
             ...(typeof row.rationale === 'string' ? { rationale: row.rationale } : {}),
             time: row.time,
           })
@@ -250,10 +293,10 @@ export function apply(ctx: Context, config: Config) {
 
   ctx.sessionProjections.register({
     key: 'approveForMe',
-    stateVersion: 3,
+    stateVersion: 4,
     stateSchema: projectionStateSchema,
     init: (header: { id: string }) => ({ sessionId: header.id, pending: {}, calls: {}, enabled: true }),
-    apply: (state: { sessionId: string; pending: Record<string, string>; calls: Record<string, Verdict>; enabled: boolean }, event: { type: string; data: Record<string, any> }) => {
+    apply: (state: { sessionId: string; pending: Record<string, string>; calls: Record<string, CallVerdict>; enabled: boolean }, event: { type: string; data: Record<string, any> }) => {
       if (event.type === 'command/run' && event.data.name === 'approve-for-me') {
         const arg = typeof event.data.args === 'string' ? event.data.args.trim().toLowerCase() : ''
         if (arg === 'on' && state.enabled !== true) return { ...state, enabled: true }
@@ -265,16 +308,16 @@ export function apply(ctx: Context, config: Config) {
         if (typeof callId !== 'string') return state
         return { ...state, pending: { ...state.pending, [event.data.id]: callId } }
       }
-      if (event.type !== 'approval/decided' || event.data.outcome !== 'allowed-once') return state
+      if (event.type !== 'approval/decided') return state
       const callId = state.pending[event.data.id]
-      if (callId === undefined) return state
+      if (typeof callId !== 'string') return state
       const verdict = verdicts.get(verdictKey(state.sessionId, callId))
       if (verdict === undefined) return state
-      return { ...state, calls: { ...state.calls, [callId]: verdict } }
+      return { ...state, calls: { ...state.calls, [callId]: { ...verdict, outcome: String(event.data.outcome) } } }
     },
     wire: {
       viewSchema: projectionViewSchema,
-      view: (state: { calls: Record<string, Verdict>; enabled: boolean }) => ({ calls: state.calls, enabled: state.enabled }),
+      view: (state: { calls: Record<string, CallVerdict>; enabled: boolean }) => ({ calls: state.calls, enabled: state.enabled }),
     },
   })
 
@@ -334,17 +377,20 @@ export function apply(ctx: Context, config: Config) {
       if (request.signal !== undefined) signals.push(request.signal)
       try {
         const verdict = await review(request, request.agent, AbortSignal.any(signals))
-        if (verdict?.allow === true) {
+        if (verdict === undefined) return next()
+        if (verdict.valid) {
           if (request.callId !== undefined) {
             record(request.agent.id, request.callId, {
               tool: request.toolName,
               risk: verdict.risk ?? 'unknown',
               authorization: verdict.authorization ?? 'unknown',
+              decision: verdict.allow ? 'allow' : 'deny',
               ...(verdict.rationale === undefined ? {} : { rationale: verdict.rationale }),
               time: Date.now(),
             })
           }
-          return 'allowed-once'
+          if (verdict.allow) return 'allowed-once'
+          annotateDenial(request, verdict.rationale)
         }
         return next()
       } catch {
