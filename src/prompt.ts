@@ -5,7 +5,7 @@ export const name = 'prompt'
 export const inject = ['systemPrompt']
 
 const RULES = [
-  'Missing a tool? Reach for nix before concluding it is unavailable. Build it outside the sandbox with an escalated bash call — `nix build --print-out-paths --no-link nixpkgs#<package>` — and use the printed store path, running its binaries directly (for example `<store-path>/bin/<command>`).',
+  'Missing a tool? Reach for nix before concluding it is unavailable. Build it **outside the sandbox** with an escalated bash call — `nix build --print-out-paths --no-link nixpkgs#<package>` — and use the printed store path, running its binaries directly (for example `<store-path>/bin/<command>`).',
   'When writing code, write no comments by default. Add one only where the code cannot carry the reason itself — a non-obvious constraint, a deliberate workaround, or a hazard a reader would otherwise trip over. Never restate what the code already says.',
 ].join('\n\n')
 
