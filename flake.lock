@@ -58,11 +58,11 @@
         "substituter-api": "substituter-api"
       },
       "locked": {
-        "lastModified": 1791960551,
-        "narHash": "sha256-RyxyA2SjPgoKNjAEgghF/wD4QfNS9XREDBM0RyZriq8=",
+        "lastModified": 1792735358,
+        "narHash": "sha256-DmxiRUVsunZQe2LPhCoO1tMWNWCCcR0B+qtW4SyeDPI=",
         "owner": "Anillc",
         "repo": "lockless",
-        "rev": "9071a0dcd2854065b6f8d091b948a1ee294300c2",
+        "rev": "463f08223de8a393b3490be06b1334a3de7296f6",
         "type": "github"
       },
       "original": {

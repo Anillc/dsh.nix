@@ -20,6 +20,8 @@
       name: ./src/api.ts
     - id: think-expand
       name: "@mzzsfy/dsh-think-expand"
+    - id: michengai-btw
+      name: "@michengai/dsh-btw"
 - id: ui-settings-general
   name: "@deepseek-ai/dsh-client-ui-settings-general"
   config:
