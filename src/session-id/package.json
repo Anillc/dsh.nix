@@ -1,0 +1,18 @@
+{
+  "name": "dsh-session-id",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Session id chip beside the conversation title; click to copy the full id.",
+  "exports": {
+    ".": "./index.ts",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  }
+}

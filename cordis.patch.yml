@@ -12,6 +12,8 @@
       name: ./src/prompt.ts
     - id: fork-at
       name: ./src/fork-at/index.ts
+    - id: session-id
+      name: ./src/session-id/index.ts
     - id: approve-for-me
       name: ./src/approve-for-me/index.ts
     - id: stop-after-reject
