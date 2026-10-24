@@ -24,10 +24,16 @@
       name: "@mzzsfy/dsh-think-expand"
     - id: michengai-btw
       name: "@michengai/dsh-btw"
+    - id: no-model-persist
+      name: ./src/no-model-persist.ts
 - id: ui-settings-general
   name: "@deepseek-ai/dsh-client-ui-settings-general"
   config:
     welcomeNoticeVersion: 2026-09-28.1
+- id: ui-chat
+  name: "@deepseek-ai/dsh-client-ui-chat"
+  config:
+    transcriptView: verbose
 - id: llm-pi-ai
   config:
     providers:
@@ -605,7 +611,3 @@
               input: [ text, image ],
               reasoningEfforts: { low: low, high: high, max: max }
             }
-- id: ui-chat
-  name: "@deepseek-ai/dsh-client-ui-chat"
-  config:
-    transcriptView: verbose
