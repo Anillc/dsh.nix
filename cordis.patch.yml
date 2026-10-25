@@ -22,8 +22,8 @@
       name: ./src/api.ts
     - id: think-expand
       name: "@mzzsfy/dsh-think-expand"
-    - id: michengai-btw
-      name: "@michengai/dsh-btw"
+    - id: btw
+      name: ./src/btw/index.ts
     - id: no-model-persist
       name: ./src/no-model-persist.ts
 - id: ui-settings-general

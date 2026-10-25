@@ -1,0 +1,21 @@
+{
+  "name": "dsh-btw",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "btw dock: continued, tool-free questions against the running conversation.",
+  "exports": {
+    ".": "./index.ts",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-api-remotes"
+      ]
+    }
+  }
+}
