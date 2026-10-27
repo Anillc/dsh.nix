@@ -6,6 +6,8 @@
   config:
     root: [ '.' ]
 - insert:
+    - id: deauth
+      name: ./src/deauth.ts
     - id: creator-playbook
       name: ./src/creator-playbook.ts
     - id: prompt
