@@ -44,6 +44,8 @@
         api: openai-completions
         baseURL: https://llm.ani.llc/v1
         apiKeyEnv: NEWAPI_API_KEY
+        compat:
+          supportsDeveloperRole: false
         models:
           - { id: bge-m3, contextWindow: 8192, maxTokens: 1024 }
           - {
