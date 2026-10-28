@@ -58,11 +58,11 @@
         "substituter-api": "substituter-api"
       },
       "locked": {
-        "lastModified": 1791960551,
-        "narHash": "sha256-RyxyA2SjPgoKNjAEgghF/wD4QfNS9XREDBM0RyZriq8=",
+        "lastModified": 1793169939,
+        "narHash": "sha256-k/jFDMDx6CN3kDeWh8U/dfiIpIGYNgGualMJCdqFdiw=",
         "owner": "Anillc",
         "repo": "lockless",
-        "rev": "9071a0dcd2854065b6f8d091b948a1ee294300c2",
+        "rev": "00144747d4e90c9fa9797f6490c0ae9a7054dba7",
         "type": "github"
       },
       "original": {
@@ -168,11 +168,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1791960431,
-        "narHash": "sha256-0tfNB+33ERviUfE4E+BE+Zs7ghb5piyHZQRYLAdWu4k=",
+        "lastModified": 1793169875,
+        "narHash": "sha256-objXfazGEfd8OaBYjG4gWkQ6krIaDtkfO2HPM/FwCnc=",
         "owner": "Anillc",
         "repo": "substituter-api",
-        "rev": "240713dab35136bc349b45bd8aa9170683ab7e86",
+        "rev": "00364d6877d5024965c3cfff7ff25be1c3fb53a9",
         "type": "github"
       },
       "original": {
