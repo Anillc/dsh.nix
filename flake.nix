@@ -10,11 +10,12 @@
         version = "0.0.0";
         type = "module";
         dependencies."@deepseek-ai/dsh" = "latest";
+        dependencies."@deepseek-ai/dsh-app-boot" = "latest";
         dependencies."tsx" = "latest";
         dependencies."@mzzsfy/dsh-think-expand" = "latest";
       };
       lock = "${lockless.lib.${system}.mkLock {
-        date = "2026-10-01T00:00:00Z";
+        date = "2026-10-29T00:00:00Z";
         peer = true;
         inherit package;
       }}/package-lock.json";
