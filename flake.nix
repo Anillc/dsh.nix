@@ -31,6 +31,7 @@
           exports.isAllowedInternalId = () => true;
           exports.getBindingInfo = () => ({ mode: 'js-shim', product: 'require-builtin', backend: 'js' });
           EOF
+          substituteInPlace $out/node_modules/@deepseek-ai/dsh-terminal-bash/lib/index.js --replace-fail '"/bin/bash"' '"${pkgs.runtimeShell}"'
         '';
       };
     in {
