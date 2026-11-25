@@ -14,6 +14,11 @@ const RULES = [
     '- Never give nix another cache or data directory to make a confined run work: no `XDG_CACHE_HOME`/`XDG_DATA_HOME`/`XDG_STATE_HOME` pointing into the workspace or `/tmp`, no `NIX_CONFIG`/`--option` store settings, no `--store`, no hand-made cache dirs. nix uses only the host directories it already has (`~/.cache/nix`, `~/.local/state/nix`, `/nix/var/nix`). A relocated cache is a different cache — it hides the real failure, re-downloads everything, and leaves junk in the repo. A `~/.cache/nix` write failure is answered by the escalated call, nothing else.',
     '- The moment you are about to write "X is not installed", "not available here", or "I can\'t install anything" — that sentence is the trigger. Make the escalated nix call instead of reporting the gap.',
   ].join('\n'),
+  '## The nix store',
+  [
+    '- The nix store is not a tree you search. To read one package, resolve the attribute you want first: `nix eval --raw nixpkgs#<package>.outPath` for its build output, `nix eval --raw nixpkgs#<package>.src.outPath` or `nix build --print-out-paths --no-link nixpkgs#<package>.src` for its sources — then search inside the path that prints. Walking `/nix/store`, or grepping strings across it, is prohibitively expensive and will not finish: every path in it is a separate closure member, not a branch of one tree.',
+    '- To make files visible to a nix build, `git add` them. `path:` is the expensive alternative — it copies the whole directory into the store — so use it only when git cannot carry the files.',
+  ].join('\n'),
   'When writing code, write no comments by default. Add one only where the code cannot carry the reason itself — a non-obvious constraint, a deliberate workaround, or a hazard a reader would otherwise trip over. Never restate what the code already says.',
 ].join('\n\n')
 
