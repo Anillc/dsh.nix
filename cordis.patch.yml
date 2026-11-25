@@ -47,7 +47,6 @@
         compat:
           supportsDeveloperRole: false
         models:
-          - { id: bge-m3, contextWindow: 8192, maxTokens: 1024 }
           - {
               id: claude-fable-5,
               contextWindow: 1000000,
@@ -140,8 +139,14 @@
               input: [ text, image ],
               reasoningEfforts: { low: low, high: high, max: max }
             }
-          - { id: deepseek-r1, contextWindow: 131072, maxTokens: 16384 }
           - { id: deepseek-reasoner, contextWindow: 128000, maxTokens: 64000 }
+          - {
+              id: deepseek-v4-1-flash-261017,
+              contextWindow: 1000000,
+              maxTokens: 384000,
+              input: [ text, image ],
+              reasoningEfforts: { low: low, high: high, max: max }
+            }
           - {
               id: deepseek-v4-flash,
               contextWindow: 1048576,
@@ -161,39 +166,6 @@
               maxTokens: 384000,
               input: [ text, image ],
               reasoningEfforts: { low: low, high: high, max: max }
-            }
-          - {
-              id: gemma-4-26b-a4b-it,
-              contextWindow: 262144,
-              maxTokens: 32768,
-              input: [ text, image ]
-            }
-          - { id: glm-4.7-flash, contextWindow: 200000, maxTokens: 131072 }
-          - {
-              id: glm-5.2,
-              contextWindow: 1000000,
-              maxTokens: 131072,
-              reasoningEfforts: { high: high, max: max }
-            }
-          - {
-              id: glm-5.3,
-              contextWindow: 1000000,
-              maxTokens: 131072,
-              reasoningEfforts: { low: low, high: high, max: max }
-            }
-          - {
-              id: glm-5.3-flash,
-              contextWindow: 1000000,
-              maxTokens: 131072,
-              input: [ text, image ],
-              reasoningEfforts: { low: low, high: high, max: max }
-            }
-          - {
-              id: gpt-5.5,
-              contextWindow: 1050000,
-              maxTokens: 128000,
-              input: [ text, image ],
-              reasoningEfforts: { off: null, low: low, medium: medium, high: high, xhigh: xhigh }
             }
           - {
               id: gpt-5.6-luna,
@@ -245,75 +217,30 @@
               reasoningEfforts: { low: low, medium: medium, high: high, xhigh: xhigh, max: max }
             }
           - {
-              id: gpt-daybreak-blue-latest,
+              id: gpt-6.1-terra,
               contextWindow: 1050000,
               maxTokens: 128000,
               input: [ text, image ],
               reasoningEfforts: { off: null, low: low, medium: medium, high: high, xhigh: xhigh, max: max }
             }
+          - {
+              id: gpt-6.2-astra,
+              contextWindow: 1050000,
+              maxTokens: 128000,
+              input: [ text, image ],
+              reasoningEfforts: { low: low, medium: medium, high: high, xhigh: xhigh, max: max }
+            }
+          - {
+              id: gpt-6.2-sol,
+              contextWindow: 1050000,
+              maxTokens: 128000,
+              input: [ text, image ],
+              reasoningEfforts: { low: low, medium: medium, high: high, xhigh: xhigh, max: max }
+            }
           - { id: gpt-image-2, input: [ text, image ] }
           - { id: gpt-image-2.5-flare, input: [ text, image ] }
           - { id: gpt-image-2.5-sunburst, input: [ text, image ] }
-          - {
-              id: gpt-oss-120b,
-              contextWindow: 131072,
-              maxTokens: 32768,
-              reasoningEfforts: { low: low, medium: medium, high: high }
-            }
           - { id: gpt-reserve }
-          - {
-              id: grok-4.5,
-              contextWindow: 500000,
-              maxTokens: 500000,
-              input: [ text, image ],
-              reasoningEfforts: { low: low, medium: medium, high: high, xhigh: xhigh }
-            }
-          - {
-              id: grok-4.6,
-              contextWindow: 500000,
-              maxTokens: 500000,
-              input: [ text, image ],
-              reasoningEfforts: { low: low, medium: medium, high: high, xhigh: xhigh }
-            }
-          - {
-              id: grok-4.7,
-              contextWindow: 500000,
-              maxTokens: 500000,
-              input: [ text, image ],
-              reasoningEfforts: { low: low, medium: medium, high: high, xhigh: xhigh }
-            }
-          - {
-              id: grok-4.7-build-fast,
-              contextWindow: 500000,
-              maxTokens: 500000,
-              input: [ text, image ],
-              reasoningEfforts: { low: low, medium: medium, high: high, xhigh: xhigh }
-            }
-          - {
-              id: kimi-k2.6,
-              contextWindow: 262144,
-              maxTokens: 262144,
-              input: [ text, image ]
-            }
-          - {
-              id: kimi-k2.7-code,
-              contextWindow: 262144,
-              maxTokens: 262144,
-              input: [ text, image ]
-            }
-          - {
-              id: llama-4-scout-17b-16e-instruct,
-              contextWindow: 128000,
-              maxTokens: 8192,
-              input: [ text, image ]
-            }
-          - {
-              id: qwen3.8-27b,
-              contextWindow: 262144,
-              maxTokens: 32768,
-              input: [ text, image ],
-              reasoningEfforts: { off: null, low: low, medium: medium, xhigh: xhigh }
-            }
           - {
               id: 42/claude-fable-5,
               contextWindow: 1000000,
@@ -529,84 +456,12 @@
               input: [ text, image ],
               reasoningEfforts: { low: low, high: high, max: max }
             }
-          - { id: k/bge-m3, contextWindow: 8192, maxTokens: 1024 }
-          - { id: k/deepseek-r1, contextWindow: 131072, maxTokens: 16384 }
           - {
-              id: k/deepseek-v4-flash,
+              id: h0/deepseek-flash,
               contextWindow: 1048576,
               maxTokens: 393216,
               input: [ text, image ],
               reasoningEfforts: { low: low, high: high, max: max }
-            }
-          - {
-              id: k/deepseek-v4-pro,
-              contextWindow: 1048576,
-              maxTokens: 393216,
-              reasoningEfforts: { low: low, high: high, max: max }
-            }
-          - {
-              id: k/deepseek-v4.1-flash,
-              contextWindow: 1000000,
-              maxTokens: 384000,
-              input: [ text, image ],
-              reasoningEfforts: { low: low, high: high, max: max }
-            }
-          - {
-              id: k/gemma-4-26b-a4b-it,
-              contextWindow: 262144,
-              maxTokens: 32768,
-              input: [ text, image ]
-            }
-          - { id: k/glm-4.7-flash, contextWindow: 200000, maxTokens: 131072 }
-          - {
-              id: k/glm-5.2,
-              contextWindow: 1000000,
-              maxTokens: 131072,
-              reasoningEfforts: { high: high, max: max }
-            }
-          - {
-              id: k/glm-5.3,
-              contextWindow: 1000000,
-              maxTokens: 131072,
-              reasoningEfforts: { low: low, high: high, max: max }
-            }
-          - {
-              id: k/glm-5.3-flash,
-              contextWindow: 1000000,
-              maxTokens: 131072,
-              input: [ text, image ],
-              reasoningEfforts: { low: low, high: high, max: max }
-            }
-          - {
-              id: k/gpt-oss-120b,
-              contextWindow: 131072,
-              maxTokens: 32768,
-              reasoningEfforts: { low: low, medium: medium, high: high }
-            }
-          - {
-              id: k/kimi-k2.6,
-              contextWindow: 262144,
-              maxTokens: 262144,
-              input: [ text, image ]
-            }
-          - {
-              id: k/kimi-k2.7-code,
-              contextWindow: 262144,
-              maxTokens: 262144,
-              input: [ text, image ]
-            }
-          - {
-              id: k/llama-4-scout-17b-16e-instruct,
-              contextWindow: 128000,
-              maxTokens: 8192,
-              input: [ text, image ]
-            }
-          - {
-              id: k/qwen3.8-27b,
-              contextWindow: 262144,
-              maxTokens: 32768,
-              input: [ text, image ],
-              reasoningEfforts: { off: null, low: low, medium: medium, xhigh: xhigh }
             }
           - {
               id: xiaolubao/deepseek-v4.1-flash,
